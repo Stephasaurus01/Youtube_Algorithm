@@ -1,0 +1,5 @@
+Metrics To Check:
+View Count
+Subscriber Count
+View to Subscriber Ratio
+Days Since Video Was Published
