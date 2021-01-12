@@ -1,7 +1,7 @@
 require('dotenv').config();
 
 const { google } = require('googleapis');
-let videos = [];
+let videos = new Map();
 
 main();
 
@@ -24,12 +24,10 @@ function getYoutubeVideos() {
     .then((response) => {
       const { data } = response;
       data.items.forEach((item) => {
-        //videoId, channelId, title
-        videos.push({
+        videos.set(item.id.videoId, {
           videoId: item.id.videoId,
           channelId: item.snippet.channelId,
           title: item.snippet.title,
-          viewCount: getViewCount(item.id.videoId),
         });
         console.log(videos);
       });
