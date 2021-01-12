@@ -7,8 +7,6 @@ main();
 
 function main() {
   getYoutubeVideos();
-  videos.forEach((video) => {});
-  // getViewCount();
 }
 
 function getYoutubeVideos() {
@@ -30,6 +28,51 @@ function getYoutubeVideos() {
           title: item.snippet.title,
         });
         console.log(videos);
+      });
+    })
+    .then((response) => {
+      videos.forEach((video) => {
+        google
+          .youtube('v3')
+          .channels.list({
+            key: process.env.YOUTUBE_TOKEN,
+            id: video.channelId,
+            part: 'statistics',
+          })
+          .then((response) => {
+            const { data } = response;
+            data.items.forEach((item) => {
+              let subscriberCount = item.statistics.subscriberCount;
+              video['subscriberCount'] = subscriberCount;
+              videos.set(video.videoId, video);
+              console.log(videos);
+            });
+          });
+      });
+    })
+    .then((response) => {
+      videos.forEach((video) => {
+        google
+          .youtube('v3')
+          .videos.list({
+            key: process.env.YOUTUBE_TOKEN,
+            id: video.videoId,
+            part: 'statistics',
+          })
+          .then((response) => {
+            const { data } = response;
+            data.items.forEach((item) => {
+              let viewCount = item.statistics.viewCount;
+              let likeCount = item.statistics.likeCount;
+              let dislikeCount = item.statistics.dislikeCount;
+              video['viewCount'] = viewCount;
+              video['likeCount'] = likeCount;
+              video['dislikeCount'] = dislikeCount;
+              videos.set(video.videoId, video);
+              videos.set(video.videoId, video);
+              videos.set(video.videoId, video);
+            });
+          });
       });
     })
     .catch((err) => console.log(err));
