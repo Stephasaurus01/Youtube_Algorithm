@@ -91,23 +91,6 @@ function getVideoStatistics() {
   });
 }
 
-function getViewCount(videoId) {
-  google
-    .youtube('v3')
-    .videos.list({
-      key: process.env.YOUTUBE_TOKEN,
-      id: videoId,
-      part: 'statistics',
-    })
-    .then((response) => {
-      const { data } = response;
-      data.items.forEach((item) => {
-        // return 'TESTING VIEW COUNT';
-      });
-    })
-    .catch((err) => console.log(err));
-}
-
 function calculatePublishAfterDate() {
   //creates Date object with today's date
   let date = new Date();
@@ -119,27 +102,6 @@ function calculatePublishAfterDate() {
   let year = date.getFullYear();
 
   return `${year}-${month}-${day}T00:00:00Z`;
-}
-
-function getVideoInfo(videoId) {
-  google
-    .youtube('v3')
-    .videos.list({
-      key: process.env.YOUTUBE_TOKEN,
-      id: videoId,
-      part: 'statistics',
-    })
-    .then((response) => {
-      const { data } = response;
-      data.items.forEach((item) => {
-        //loop through each video and check the metrics
-        console.log('====================================');
-        console.log(item.id.channelId);
-        console.log('====================================');
-        calculateMetrics(item.statistics);
-      });
-    })
-    .catch((err) => console.log(err));
 }
 
 function calculateMetrics(statistics, channelId) {
