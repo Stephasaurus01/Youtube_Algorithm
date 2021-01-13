@@ -76,15 +76,10 @@ function getVideoStatistics() {
         .then((response) => {
           const { data } = response;
           data.items.forEach((item) => {
-            let viewCount = item.statistics.viewCount;
-            let likeCount = item.statistics.likeCount;
-            let dislikeCount = item.statistics.dislikeCount;
-            video['viewCount'] = viewCount;
-            video['likeCount'] = likeCount;
-            video['dislikeCount'] = dislikeCount;
+            const { viewCount, likeCount, dislikeCount } = item.statistics;
+            Object.assign(video, { viewCount, likeCount, dislikeCount });
             videos.set(video.videoId, video);
-            videos.set(video.videoId, video);
-            videos.set(video.videoId, video);
+            console.log(videos);
           });
         });
     });
