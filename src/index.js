@@ -6,76 +6,89 @@ let videos = new Map();
 main();
 
 function main() {
-  getYoutubeVideos();
+  getYoutubeVideos()
+    .then(getSubscriberCount)
+    .then(getVideoStatistics)
+    .catch((err) => {
+      console.log(err);
+    });
 }
 
 function getYoutubeVideos() {
-  google
-    .youtube('v3')
-    .search.list({
-      key: process.env.YOUTUBE_TOKEN,
-      part: 'snippet',
-      q: 'software developer',
-      maxResults: 2,
-      publishedAfter: calculatePublishAfterDate(),
-    })
-    .then((response) => {
-      const { data } = response;
-      data.items.forEach((item) => {
-        videos.set(item.id.videoId, {
-          videoId: item.id.videoId,
-          channelId: item.snippet.channelId,
-          title: item.snippet.title,
+  return new Promise((resolve, reject) => {
+    google
+      .youtube('v3')
+      .search.list({
+        key: process.env.YOUTUBE_TOKEN,
+        part: 'snippet',
+        q: 'software developer',
+        maxResults: 2,
+        publishedAfter: calculatePublishAfterDate(),
+      })
+      .then((response) => {
+        const { data } = response;
+        data.items.forEach((item) => {
+          videos.set(item.id.videoId, {
+            videoId: item.id.videoId,
+            channelId: item.snippet.channelId,
+            title: item.snippet.title,
+            publishedDate: item.snippet.publishedAt,
+          });
         });
-        console.log(videos);
+        resolve();
       });
-    })
-    .then((response) => {
-      videos.forEach((video) => {
-        google
-          .youtube('v3')
-          .channels.list({
-            key: process.env.YOUTUBE_TOKEN,
-            id: video.channelId,
-            part: 'statistics',
-          })
-          .then((response) => {
-            const { data } = response;
-            data.items.forEach((item) => {
-              let subscriberCount = item.statistics.subscriberCount;
-              video['subscriberCount'] = subscriberCount;
-              videos.set(video.videoId, video);
-              console.log(videos);
-            });
+  });
+}
+
+function getSubscriberCount() {
+  return new Promise((resolve, reject) => {
+    videos.forEach((video) => {
+      google
+        .youtube('v3')
+        .channels.list({
+          key: process.env.YOUTUBE_TOKEN,
+          id: video.channelId,
+          part: 'statistics',
+        })
+        .then((response) => {
+          const { data } = response;
+          data.items.forEach((item) => {
+            let subscriberCount = item.statistics.subscriberCount;
+            video['subscriberCount'] = subscriberCount;
+            videos.set(video.videoId, video);
           });
-      });
-    })
-    .then((response) => {
-      videos.forEach((video) => {
-        google
-          .youtube('v3')
-          .videos.list({
-            key: process.env.YOUTUBE_TOKEN,
-            id: video.videoId,
-            part: 'statistics',
-          })
-          .then((response) => {
-            const { data } = response;
-            data.items.forEach((item) => {
-              let viewCount = item.statistics.viewCount;
-              let likeCount = item.statistics.likeCount;
-              let dislikeCount = item.statistics.dislikeCount;
-              video['viewCount'] = viewCount;
-              video['likeCount'] = likeCount;
-              video['dislikeCount'] = dislikeCount;
-              videos.set(video.videoId, video);
-              videos.set(video.videoId, video);
-              videos.set(video.videoId, video);
-            });
+        });
+    });
+    resolve();
+  });
+}
+
+function getVideoStatistics() {
+  return new Promise((resolve, reject) => {
+    videos.forEach((video) => {
+      google
+        .youtube('v3')
+        .videos.list({
+          key: process.env.YOUTUBE_TOKEN,
+          id: video.videoId,
+          part: 'statistics',
+        })
+        .then((response) => {
+          const { data } = response;
+          data.items.forEach((item) => {
+            let viewCount = item.statistics.viewCount;
+            let likeCount = item.statistics.likeCount;
+            let dislikeCount = item.statistics.dislikeCount;
+            video['viewCount'] = viewCount;
+            video['likeCount'] = likeCount;
+            video['dislikeCount'] = dislikeCount;
+            videos.set(video.videoId, video);
+            videos.set(video.videoId, video);
+            videos.set(video.videoId, video);
           });
-      });
-    })
-    .catch((err) => console.log(err));
+        });
+    });
+  });
 }
 
 function getViewCount(videoId) {
@@ -126,7 +139,7 @@ function getVideoInfo(videoId) {
         calculateMetrics(item.statistics);
       });
     })
-    .catch((err) => console.log(error));
+    .catch((err) => console.log(err));
 }
 
 function calculateMetrics(statistics, channelId) {
@@ -139,23 +152,6 @@ function calculateMetrics(statistics, channelId) {
 
 function hasValidViewCount(viewCount) {
   return viewCount > 500;
-}
-
-function getSubscriberCount(channelId) {
-  google
-    .youtube('v3')
-    .channels.list({
-      key: process.env.YOUTUBE_TOKEN,
-      id: channelId,
-      part: 'statistics',
-    })
-    .then((response) => {
-      const { data } = response;
-      data.items.forEach((item) => {
-        //loop through each video and check the metrics
-      });
-    })
-    .catch((err) => console.log(error));
 }
 
 function hasValidSubscriberCount(subscriberCount) {
