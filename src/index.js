@@ -33,11 +33,13 @@ function getYoutubeVideos() {
       .then((response) => {
         const { data } = response;
         data.items.forEach((item) => {
-          videos.set(item.id.videoId, {
-            videoId: item.id.videoId,
-            channelId: item.snippet.channelId,
-            title: item.snippet.title,
-            publishedDate: item.snippet.publishedAt,
+          const { videoId } = item.id;
+          const { channelId, title, publishedAt } = item.snippet;
+          videos.set(videoId, {
+            videoId: videoId,
+            channelId: channelId,
+            title: title,
+            publishedDate: publishedAt,
           });
         });
         resolve();
