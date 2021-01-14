@@ -108,8 +108,8 @@ function calculatePublishAfterDate() {
 
 function calculateMetrics() {
   videos.forEach((video) => {
-    if (!hasValidViewCount(viewCount)) return false;
-    if (!getSubscriberCount(subscriberCount)) return false;
+    if (!hasValidViewCount(video.viewCount)) return false;
+    if (!getSubscriberCount(video.subscriberCount)) return false;
   });
 
   //TODO - Implement Functions Below
