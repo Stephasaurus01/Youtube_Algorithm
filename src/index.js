@@ -5,7 +5,7 @@ let videos = new Map();
 
 main();
 
-async function main() {
+function main() {
   getYoutubeVideos()
     .then(getSubscriberCount)
     .then(getVideoStatistics)
