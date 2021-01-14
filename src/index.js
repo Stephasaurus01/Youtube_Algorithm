@@ -5,10 +5,20 @@ let videos = new Map();
 
 main();
 
-function main() {
+async function main() {
+  // await getYoutubeVideos();
+  // await getSubscriberCount();
+  // await getVideoStatistics();
   getYoutubeVideos()
     .then(getSubscriberCount)
     .then(getVideoStatistics)
+    .then((res) => {
+      Promise.all(res).then(() => {
+        console.log('-------------');
+        console.log(videos);
+        calculateMetrics();
+      });
+    })
     .catch((err) => {
       console.log(err);
     });
@@ -64,8 +74,10 @@ function getSubscriberCount() {
 }
 
 function getVideoStatistics() {
-  return new Promise((resolve, reject) => {
-    videos.forEach((video) => {
+  let promises = [];
+  // return new Promise((resolve, reject) => {
+  videos.forEach((video) => {
+    promises.push(
       google
         .youtube('v3')
         .videos.list({
@@ -81,9 +93,12 @@ function getVideoStatistics() {
             videos.set(video.videoId, video);
             console.log(videos);
           });
-        });
-    });
+        })
+    );
   });
+  return promises;
+  // resolve();
+  // });
 }
 
 function calculatePublishAfterDate() {
@@ -99,10 +114,15 @@ function calculatePublishAfterDate() {
   return `${year}-${month}-${day}T00:00:00Z`;
 }
 
-function calculateMetrics(statistics, channelId) {
+function calculateMetrics() {
+  videos.forEach((video) => {
+    if (!hasValidViewCount(viewCount)) return false;
+    if (!getSubscriberCount(subscriberCount)) return false;
+  });
+
+  // hasValidViewCount();
+  // getSubscriberCount();
   //TODO - Implement Functions Below
-  hasValidViewCount(statistics.viewCount);
-  getSubscriberCount(channelId);
   // hasValidSubscriberCount();
   // hasValidViewsToSubscriberRatio();
 }
