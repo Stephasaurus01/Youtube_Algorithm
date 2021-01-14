@@ -6,16 +6,11 @@ let videos = new Map();
 main();
 
 async function main() {
-  // await getYoutubeVideos();
-  // await getSubscriberCount();
-  // await getVideoStatistics();
   getYoutubeVideos()
     .then(getSubscriberCount)
     .then(getVideoStatistics)
     .then((res) => {
       Promise.all(res).then(() => {
-        console.log('-------------');
-        console.log(videos);
         calculateMetrics();
       });
     })
@@ -75,7 +70,6 @@ function getSubscriberCount() {
 
 function getVideoStatistics() {
   let promises = [];
-  // return new Promise((resolve, reject) => {
   videos.forEach((video) => {
     promises.push(
       google
@@ -97,8 +91,6 @@ function getVideoStatistics() {
     );
   });
   return promises;
-  // resolve();
-  // });
 }
 
 function calculatePublishAfterDate() {
@@ -120,8 +112,6 @@ function calculateMetrics() {
     if (!getSubscriberCount(subscriberCount)) return false;
   });
 
-  // hasValidViewCount();
-  // getSubscriberCount();
   //TODO - Implement Functions Below
   // hasValidSubscriberCount();
   // hasValidViewsToSubscriberRatio();
