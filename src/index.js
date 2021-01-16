@@ -1,5 +1,4 @@
 require('dotenv').config();
-
 const { google } = require('googleapis');
 let videos = new Map();
 
@@ -9,10 +8,8 @@ function main() {
   getYoutubeVideos()
     .then(getSubscriberCount)
     .then(getVideoStatistics)
-    .then((res) => {
-      Promise.all(res).then(() => {
-        calculateMetrics();
-      });
+    .then(() => {
+      calculateMetrics();
     })
     .catch((err) => {
       console.log(err);
@@ -27,7 +24,7 @@ function getYoutubeVideos() {
         key: process.env.YOUTUBE_TOKEN,
         part: 'snippet',
         q: 'software developer',
-        maxResults: 2,
+        maxResults: 10,
         publishedAfter: calculatePublishAfterDate(),
       })
       .then((response) => {
@@ -92,7 +89,7 @@ function getVideoStatistics() {
         })
     );
   });
-  return promises;
+  return Promise.all(promises);
 }
 
 function calculatePublishAfterDate() {
@@ -110,10 +107,19 @@ function calculatePublishAfterDate() {
 
 function calculateMetrics() {
   videos.forEach((video) => {
-    if (!hasValidViewCount(video.viewCount)) return false;
-    if (!getSubscriberCount(video.subscriberCount)) return false;
-  });
+    let validVideo = true;
+    if (!hasValidViewCount(video.viewCount)) {
+      validVideo = false;
+    }
+    if (!getSubscriberCount(video.subscriberCount)) {
+      validVideo = false;
+    }
 
+    if (!validVideo) {
+      let key = video.videoId;
+      videos.delete(key);
+    }
+  });
   //TODO - Implement Functions Below
   // hasValidSubscriberCount();
   // hasValidViewsToSubscriberRatio();
