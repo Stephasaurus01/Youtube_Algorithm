@@ -1,5 +1,6 @@
 require('dotenv').config();
 const { google } = require('googleapis');
+const moment = require('moment');
 let videos = new Map();
 
 main();
@@ -81,13 +82,22 @@ function getVideoStatistics() {
         .videos.list({
           key: process.env.YOUTUBE_TOKEN,
           id: video.videoId,
-          part: 'statistics',
+          part: 'statistics, contentDetails',
         })
         .then((response) => {
           const { data } = response;
           data.items.forEach((item) => {
             const { viewCount, likeCount, dislikeCount } = item.statistics;
-            Object.assign(video, { viewCount, likeCount, dislikeCount });
+            const { duration } = item.contentDetails;
+            let durationInSeconds = moment
+              .duration(duration, moment.ISO_8601)
+              .asSeconds();
+            Object.assign(video, {
+              viewCount,
+              likeCount,
+              dislikeCount,
+              durationInSeconds,
+            });
             videos.set(video.videoId, video);
             console.log(videos);
           });
@@ -119,6 +129,9 @@ function calculateMetrics() {
     if (!hasValidSubscriberCount(video.subscriberCount)) {
       validVideo = false;
     }
+    if (!hasValidDuration(video.durationInSeconds)) {
+      validVideo = false;
+    }
 
     if (!validVideo) {
       let key = video.videoId;
@@ -141,4 +154,8 @@ function hasValidViewsToSubscriberRatio(viewCount, subscriberCount) {
   let ratio = viewCount / subscriberCount;
   let score = viewCount * min(ration, 5);
   return true;
+}
+
+function hasValidDuration(duration) {
+  return duration > 120;
 }
