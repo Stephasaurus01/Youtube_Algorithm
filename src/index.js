@@ -10,6 +10,9 @@ function main() {
     .then(getVideoStatistics)
     .then(() => {
       calculateMetrics();
+      videos.forEach((video) =>
+        console.log(`https://www.youtube.com/watch?v=${video.videoId}`)
+      );
     })
     .catch((err) => {
       console.log(err);
@@ -24,8 +27,10 @@ function getYoutubeVideos() {
         key: process.env.YOUTUBE_TOKEN,
         part: 'snippet',
         q: 'software developer',
-        maxResults: 10,
+        maxResults: 20,
         publishedAfter: calculatePublishAfterDate(),
+        relevanceLanguage: 'en',
+        type: 'video',
       })
       .then((response) => {
         const { data } = response;
@@ -111,7 +116,7 @@ function calculateMetrics() {
     if (!hasValidViewCount(video.viewCount)) {
       validVideo = false;
     }
-    if (!getSubscriberCount(video.subscriberCount)) {
+    if (!hasValidSubscriberCount(video.subscriberCount)) {
       validVideo = false;
     }
 
@@ -121,16 +126,15 @@ function calculateMetrics() {
     }
   });
   //TODO - Implement Functions Below
-  // hasValidSubscriberCount();
   // hasValidViewsToSubscriberRatio();
 }
 
 function hasValidViewCount(viewCount) {
-  return viewCount > 500;
+  return viewCount > 500 && viewCount < 5000;
 }
 
 function hasValidSubscriberCount(subscriberCount) {
-  return subscriberCount > 100;
+  return subscriberCount > 300;
 }
 
 function hasValidViewsToSubscriberRatio(viewCount, subscriberCount) {
