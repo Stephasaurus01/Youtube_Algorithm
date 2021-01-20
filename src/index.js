@@ -10,23 +10,14 @@ async function main() {
   for (let i = 0; i < 4; i++) {
     nextPageToken = await getYoutubeVideos(nextPageToken);
   }
-  console.log(`Size After: ${videos.size}`);
-  await getSubscriberCount();
-  await getVideoStatistics();
-  console.log(videos);
-  // .then(getSubscriberCount)
-  // .then(getVideoStatistics)
-  // .then(() => {
-  //   console.log(`Before No of Videos: ${videos.size}`);
-  //   calculateMetrics();
-  //   console.log(`After No of Videos: ${videos.size}`);
-  //   videos.forEach((video) =>
-  //     console.log(`https://www.youtube.com/watch?v=${video.videoId}`)
-  //   );
-  // })
-  // .catch((err) => {
-  //   console.log(err);
-  // });
+  getSubscriberCount()
+    .then(getVideoStatistics)
+    .then(() => {
+      calculateMetrics();
+      videos.forEach((video) =>
+        console.log(`https://www.youtube.com/watch?v=${video.videoId}`)
+      );
+    });
 }
 
 function getYoutubeVideos(nextPageToken = '') {
@@ -62,7 +53,7 @@ function getYoutubeVideos(nextPageToken = '') {
   });
 }
 
-async function getSubscriberCount() {
+function getSubscriberCount() {
   console.log(`Sub No of Videos: ${videos.size}`);
   return new Promise((resolve, reject) => {
     videos.forEach((video) => {
@@ -86,7 +77,7 @@ async function getSubscriberCount() {
   });
 }
 
-async function getVideoStatistics() {
+function getVideoStatistics() {
   console.log(`STATS No of Videos: ${videos.size}`);
   let promises = [];
   videos.forEach((video) => {
