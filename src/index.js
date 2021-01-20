@@ -54,7 +54,6 @@ function getYoutubeVideos(nextPageToken = '') {
 }
 
 function getSubscriberCount() {
-  console.log(`Sub No of Videos: ${videos.size}`);
   return new Promise((resolve, reject) => {
     videos.forEach((video) => {
       google
@@ -78,7 +77,6 @@ function getSubscriberCount() {
 }
 
 function getVideoStatistics() {
-  console.log(`STATS No of Videos: ${videos.size}`);
   let promises = [];
   videos.forEach((video) => {
     promises.push(
@@ -104,7 +102,6 @@ function getVideoStatistics() {
               durationInSeconds,
             });
             videos.set(video.videoId, video);
-            // console.log(videos);
           });
         })
     );
