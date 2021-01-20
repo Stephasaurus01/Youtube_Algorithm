@@ -1,5 +1,6 @@
 require('dotenv').config();
 const { google } = require('googleapis');
+const nodemailer = require('nodemailer');
 const moment = require('moment');
 
 const WITHIN_DAYS_PUBLISHED = 1;
@@ -10,6 +11,8 @@ main();
 
 async function main() {
   let nextPageToken = '';
+  let emailText = '';
+
   for (let i = 0; i < 6; i++) {
     nextPageToken = await getYoutubeVideos(nextPageToken);
   }
@@ -17,9 +20,15 @@ async function main() {
     .then(getVideoStatistics)
     .then(() => {
       calculateMetrics();
-      videos.forEach((video) =>
-        console.log(`https://www.youtube.com/watch?v=${video.videoId}`)
-      );
+      videos.forEach((video) => {
+        emailText += `https://www.youtube.com/watch?v=${video.videoId}\n`;
+        console.log(`https://www.youtube.com/watch?v=${video.videoId}`);
+      });
+      emailVideos(emailText);
+
+      // videos.forEach((video) =>
+      //   console.log(`https://www.youtube.com/watch?v=${video.videoId}`)
+      // );
     });
 }
 
@@ -31,7 +40,7 @@ function getYoutubeVideos(nextPageToken = '') {
         key: process.env.YOUTUBE_TOKEN,
         part: 'snippet',
         q: 'software developer|software engineer|programmer',
-        maxResults: 10,
+        maxResults: 1,
         publishedAfter: calculatePublishAfterDate(),
         relevanceLanguage: 'en',
         type: 'video',
@@ -155,4 +164,29 @@ function hasValidSubscriberCount(subscriberCount) {
 
 function hasValidDuration(duration) {
   return duration > 120;
+}
+
+function emailVideos(emailText) {
+  let transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.EMAIL_USERNAME,
+      pass: process.env.EMAIL_PASSWORD,
+    },
+  });
+
+  let mailOptions = {
+    from: process.env.EMAIL_USERNAME,
+    to: process.env.TO_EMAIL,
+    subject: 'Youtube Videos for: ',
+    text: emailText,
+  };
+
+  transporter.sendMail(mailOptions, function (err, data) {
+    if (err) {
+      console.log(err);
+    } else {
+      console.log('Email has been sent!!');
+    }
+  });
 }
