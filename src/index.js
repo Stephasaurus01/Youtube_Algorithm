@@ -5,36 +5,39 @@ let videos = new Map();
 
 main();
 
-function main() {
-  getYoutubeVideos()
-    .then(getSubscriberCount)
+async function main() {
+  let nextPageToken = '';
+  for (let i = 0; i < 4; i++) {
+    nextPageToken = await getYoutubeVideos(nextPageToken);
+  }
+  getSubscriberCount()
     .then(getVideoStatistics)
     .then(() => {
       calculateMetrics();
       videos.forEach((video) =>
         console.log(`https://www.youtube.com/watch?v=${video.videoId}`)
       );
-    })
-    .catch((err) => {
-      console.log(err);
     });
 }
 
-function getYoutubeVideos() {
+function getYoutubeVideos(nextPageToken = '') {
   return new Promise((resolve, reject) => {
     google
       .youtube('v3')
       .search.list({
         key: process.env.YOUTUBE_TOKEN,
         part: 'snippet',
-        q: 'software developer',
-        maxResults: 20,
+        q: 'software developer|software engineer|programmer',
+        maxResults: 2,
         publishedAfter: calculatePublishAfterDate(),
         relevanceLanguage: 'en',
         type: 'video',
+        pageToken: nextPageToken,
       })
       .then((response) => {
         const { data } = response;
+        nextPageToken = data.nextPageToken;
+        console.log(data);
         data.items.forEach((item) => {
           const { videoId } = item.id;
           const { channelId, title, publishedAt } = item.snippet;
@@ -45,12 +48,13 @@ function getYoutubeVideos() {
             publishedDate: publishedAt,
           });
         });
-        resolve();
+        resolve(nextPageToken);
       });
   });
 }
 
 function getSubscriberCount() {
+  console.log(`Sub No of Videos: ${videos.size}`);
   return new Promise((resolve, reject) => {
     videos.forEach((video) => {
       google
@@ -74,6 +78,7 @@ function getSubscriberCount() {
 }
 
 function getVideoStatistics() {
+  console.log(`STATS No of Videos: ${videos.size}`);
   let promises = [];
   videos.forEach((video) => {
     promises.push(
@@ -99,7 +104,7 @@ function getVideoStatistics() {
               durationInSeconds,
             });
             videos.set(video.videoId, video);
-            console.log(videos);
+            // console.log(videos);
           });
         })
     );
@@ -143,11 +148,11 @@ function calculateMetrics() {
 }
 
 function hasValidViewCount(viewCount) {
-  return viewCount > 500 && viewCount < 5000;
+  return viewCount > 50 && viewCount < 5000;
 }
 
 function hasValidSubscriberCount(subscriberCount) {
-  return subscriberCount > 300;
+  return subscriberCount > 200;
 }
 
 function hasValidViewsToSubscriberRatio(viewCount, subscriberCount) {
