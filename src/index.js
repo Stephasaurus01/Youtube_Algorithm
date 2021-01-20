@@ -1,6 +1,9 @@
 require('dotenv').config();
 const { google } = require('googleapis');
 const moment = require('moment');
+
+const WITHIN_DAYS_PUBLISHED = 1;
+
 let videos = new Map();
 
 main();
@@ -113,7 +116,7 @@ function calculatePublishAfterDate() {
   //creates Date object with today's date
   let date = new Date();
   //Getting the date from 7 days ago
-  date.setDate(date.getDate() - 7);
+  date.setDate(date.getDate() - WITHIN_DAYS_PUBLISHED);
 
   let day = date.getDate();
   let month = date.getMonth() + 1;
