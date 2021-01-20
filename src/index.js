@@ -10,7 +10,7 @@ main();
 
 async function main() {
   let nextPageToken = '';
-  for (let i = 0; i < 4; i++) {
+  for (let i = 0; i < 6; i++) {
     nextPageToken = await getYoutubeVideos(nextPageToken);
   }
   getSubscriberCount()
@@ -31,7 +31,7 @@ function getYoutubeVideos(nextPageToken = '') {
         key: process.env.YOUTUBE_TOKEN,
         part: 'snippet',
         q: 'software developer|software engineer|programmer',
-        maxResults: 2,
+        maxResults: 10,
         publishedAfter: calculatePublishAfterDate(),
         relevanceLanguage: 'en',
         type: 'video',
@@ -143,8 +143,6 @@ function calculateMetrics() {
       videos.delete(key);
     }
   });
-  //TODO - Implement Functions Below
-  // hasValidViewsToSubscriberRatio();
 }
 
 function hasValidViewCount(viewCount) {
@@ -153,12 +151,6 @@ function hasValidViewCount(viewCount) {
 
 function hasValidSubscriberCount(subscriberCount) {
   return subscriberCount > 200;
-}
-
-function hasValidViewsToSubscriberRatio(viewCount, subscriberCount) {
-  let ratio = viewCount / subscriberCount;
-  let score = viewCount * min(ration, 5);
-  return true;
 }
 
 function hasValidDuration(duration) {
