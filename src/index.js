@@ -25,10 +25,6 @@ async function main() {
         console.log(`https://www.youtube.com/watch?v=${video.videoId}`);
       });
       emailVideos(emailText);
-
-      // videos.forEach((video) =>
-      //   console.log(`https://www.youtube.com/watch?v=${video.videoId}`)
-      // );
     });
 }
 
@@ -39,8 +35,9 @@ function getYoutubeVideos(nextPageToken = '') {
       .search.list({
         key: process.env.YOUTUBE_TOKEN,
         part: 'snippet',
-        q: 'software developer|software engineer|programmer',
-        maxResults: 1,
+        q:
+          'software developer|software engineer|programmer|computer science|coding',
+        maxResults: 50,
         publishedAfter: calculatePublishAfterDate(),
         relevanceLanguage: 'en',
         type: 'video',
@@ -58,6 +55,7 @@ function getYoutubeVideos(nextPageToken = '') {
             channelId: channelId,
             title: title,
             publishedDate: publishedAt,
+            order: 'viewCount',
           });
         });
         resolve(nextPageToken);
