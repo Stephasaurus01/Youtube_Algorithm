@@ -4,3 +4,4 @@ Subscriber Count
 View to Subscriber Ratio
 Like to Dislike Ratio (likes/ (likes + max(dislikes, 10))
 Days Since Video Was Published - this can be done in the initial api request using PublishedAfter property
+Video Duration
