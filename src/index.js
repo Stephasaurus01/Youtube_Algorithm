@@ -55,7 +55,6 @@ function getYoutubeVideos(nextPageToken = '') {
             channelId: channelId,
             title: title,
             publishedDate: publishedAt,
-            order: 'viewCount',
           });
         });
         resolve(nextPageToken);
