@@ -192,13 +192,14 @@ function emailVideos(emailText) {
 }
 
 async function openYoutubeVideos() {
-  const browser = await puppeteer.launch({headless: false});
+  const browser = await puppeteer.launch({headless: false, defaultViewport: null, executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe'});
   const page = await browser.newPage();
   await page.goto('https://www.youtube.com');
   await page.waitForSelector('#dismiss-button > yt-button-renderer > a')
   await page.click('#dismiss-button > yt-button-renderer > a')
-  await page.waitForSelector('#introAgreeButton > span > span')
-  if (await page.$('#introAgreeButton > span > span') !== null){ console.log('found')} else {console.log('not found')}
+  await page.waitForSelector('#introAgreeButton')
+  console.log('After Waiting')
+  if (await page.$('#introAgreeButton') !== null){ console.log('found')} else {console.log('not found')}
   // await page.waitForSelector('#introAgreeButton')
-  // await page.click('#introAgreeButton')
+  await page.click('#introAgreeButton')
 }
