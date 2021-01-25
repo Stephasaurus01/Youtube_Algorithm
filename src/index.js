@@ -2,14 +2,16 @@ require('dotenv').config();
 const { google } = require('googleapis');
 const nodemailer = require('nodemailer');
 const moment = require('moment');
+const puppeteer = require('puppeteer');
 
 const WITHIN_DAYS_PUBLISHED = 1;
 
 let videos = new Map();
-
 main();
 
 async function main() {
+openYoutubeVideos();
+
   let nextPageToken = '';
   let emailText = '';
 
@@ -24,7 +26,8 @@ async function main() {
         emailText += `https://www.youtube.com/watch?v=${video.videoId}\n`;
         console.log(`https://www.youtube.com/watch?v=${video.videoId}`);
       });
-      emailVideos(emailText);
+      // emailVideos(emailText);
+      // openYoutubeVideos();
     });
 }
 
@@ -37,7 +40,7 @@ function getYoutubeVideos(nextPageToken = '') {
         part: 'snippet',
         q:
           'software developer|software engineer|programmer|computer science|coding',
-        maxResults: 50,
+        maxResults: 2,
         publishedAfter: calculatePublishAfterDate(),
         relevanceLanguage: 'en',
         type: 'video',
@@ -186,4 +189,16 @@ function emailVideos(emailText) {
       console.log('Email has been sent!!');
     }
   });
+}
+
+async function openYoutubeVideos() {
+  const browser = await puppeteer.launch({headless: false});
+  const page = await browser.newPage();
+  await page.goto('https://www.youtube.com');
+  await page.waitForSelector('#dismiss-button > yt-button-renderer > a')
+  await page.click('#dismiss-button > yt-button-renderer > a')
+  await page.waitForSelector('#introAgreeButton > span > span')
+  if (await page.$('#introAgreeButton > span > span') !== null){ console.log('found')} else {console.log('not found')}
+  // await page.waitForSelector('#introAgreeButton')
+  // await page.click('#introAgreeButton')
 }
