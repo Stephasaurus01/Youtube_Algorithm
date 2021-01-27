@@ -1,3 +1,3 @@
 node_modules
 .env 
-/src/query-term.js
+src/query-terms.js
