@@ -21,7 +21,7 @@ module.exports = function calculateMetrics(videos) {
 };
 
 function hasValidViewCount(viewCount) {
-  return viewCount > 50 && viewCount < 5000;
+  return viewCount > 50 && viewCount < 8000;
 }
 
 function hasValidSubscriberCount(subscriberCount) {
