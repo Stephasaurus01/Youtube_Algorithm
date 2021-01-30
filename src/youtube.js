@@ -1,14 +1,16 @@
 const { google } = require("googleapis");
 const moment = require("moment");
+const queryTerms = require("./query-terms.js");
 
 const WITHIN_DAYS_PUBLISHED = 1;
 let videos = new Map();
 
 module.exports = async function getVideos() {
   let nextPageToken = "";
+  let dayOfWeek = getCurrentDayOfWeek();
 
   for (let i = 0; i < 3; i++) {
-    nextPageToken = await getYoutubeVideos(nextPageToken);
+    nextPageToken = await getYoutubeVideos(nextPageToken, dayOfWeek);
   }
   await getSubscriberCount();
   await getVideoStatistics();
@@ -16,7 +18,7 @@ module.exports = async function getVideos() {
   return videos;
 };
 
-function getYoutubeVideos(nextPageToken = "") {
+function getYoutubeVideos(nextPageToken = "", dayOfWeek) {
   console.log("Inside getYoutubeVideos()");
   return new Promise((resolve, reject) => {
     google
@@ -24,9 +26,8 @@ function getYoutubeVideos(nextPageToken = "") {
       .search.list({
         key: process.env.YOUTUBE_TOKEN,
         part: "snippet",
-        q:
-          "software developer|software engineer|programmer|computer science|coding",
-        maxResults: 2,
+        q: queryTerms[dayOfWeek],
+        maxResults: 50,
         publishedAfter: calculatePublishAfterDate(),
         relevanceLanguage: "en",
         type: "video",
@@ -118,4 +119,9 @@ function calculatePublishAfterDate() {
   let year = date.getFullYear();
 
   return `${year}-${month}-${day}T00:00:00Z`;
+}
+
+function getCurrentDayOfWeek() {
+  let dayOfWeek = new Date().getDate();
+  return dayOfWeek;
 }
