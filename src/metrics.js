@@ -1,7 +1,9 @@
 module.exports = function calculateMetrics(videos) {
   let vids = videos;
+
   vids.forEach((video) => {
     let validVideo = true;
+
     if (!hasValidViewCount(video.viewCount)) {
       validVideo = false;
     }

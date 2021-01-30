@@ -7,10 +7,10 @@ let videos = new Map();
 
 module.exports = async function getVideos() {
   let nextPageToken = "";
-  let dayOfWeek = getCurrentDayOfWeek();
+  let currentDayOfWeek = getCurrentDayOfWeek();
 
   for (let i = 0; i < 3; i++) {
-    nextPageToken = await getYoutubeVideos(nextPageToken, dayOfWeek);
+    nextPageToken = await getVideosFromYoutube(nextPageToken, currentDayOfWeek);
   }
   await getSubscriberCount();
   await getVideoStatistics();
@@ -18,15 +18,14 @@ module.exports = async function getVideos() {
   return videos;
 };
 
-function getYoutubeVideos(nextPageToken = "", dayOfWeek) {
-  console.log("Inside getYoutubeVideos()");
+function getVideosFromYoutube(nextPageToken = "", currentDayOfWeek) {
   return new Promise((resolve, reject) => {
     google
       .youtube("v3")
       .search.list({
         key: process.env.YOUTUBE_TOKEN,
         part: "snippet",
-        q: queryTerms[dayOfWeek],
+        q: queryTerms[currentDayOfWeek],
         maxResults: 50,
         publishedAfter: calculatePublishAfterDate(),
         relevanceLanguage: "en",
@@ -36,7 +35,6 @@ function getYoutubeVideos(nextPageToken = "", dayOfWeek) {
       .then((response) => {
         const { data } = response;
         nextPageToken = data.nextPageToken;
-        //   console.log(data);
         data.items.forEach((item) => {
           const { videoId } = item.id;
           const { channelId, title, publishedAt } = item.snippet;
@@ -109,9 +107,7 @@ function getVideoStatistics() {
 }
 
 function calculatePublishAfterDate() {
-  //creates Date object with today's date
   let date = new Date();
-  //Getting the date from 7 days ago
   date.setDate(date.getDate() - WITHIN_DAYS_PUBLISHED);
 
   let day = date.getDate();
@@ -122,6 +118,6 @@ function calculatePublishAfterDate() {
 }
 
 function getCurrentDayOfWeek() {
-  let dayOfWeek = new Date().getDate();
-  return dayOfWeek;
+  let currentDayOfWeek = new Date().getDate();
+  return currentDayOfWeek;
 }
