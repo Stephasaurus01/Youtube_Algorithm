@@ -5,18 +5,18 @@ const queryTerms = require("./query-terms.js");
 const WITHIN_DAYS_PUBLISHED = 1;
 let videos = new Map();
 
-module.exports = async function getVideos() {
+async function getVideos() {
   let nextPageToken = "";
   let currentDayOfWeek = getCurrentDayOfWeek();
 
   for (let i = 0; i < 3; i++) {
     nextPageToken = await getVideosFromYoutube(nextPageToken, currentDayOfWeek);
   }
-  await getSubscriberCount();
-  await getVideoStatistics();
-
+  // await getSubscriberCount();
+  // await getVideoStatistics();
+  console.log("Here");
   return videos;
-};
+}
 
 function getVideosFromYoutube(nextPageToken = "", currentDayOfWeek) {
   return new Promise((resolve, reject) => {
@@ -26,7 +26,7 @@ function getVideosFromYoutube(nextPageToken = "", currentDayOfWeek) {
         key: process.env.YOUTUBE_TOKEN,
         part: "snippet",
         q: queryTerms[currentDayOfWeek],
-        maxResults: 50,
+        maxResults: 2,
         publishedAfter: calculatePublishAfterDate(),
         relevanceLanguage: "en",
         type: "video",
@@ -73,37 +73,61 @@ function getSubscriberCount() {
   });
 }
 
-function getVideoStatistics() {
+function getVideoStatistics(vids) {
   let promises = [];
-  videos.forEach((video) => {
+  console.log("=====================");
+  console.log(vids);
+  console.log("=====================");
+  // return Promise.all(
+  vids.forEach((video) => {
     promises.push(
-      google
-        .youtube("v3")
-        .videos.list({
-          key: process.env.YOUTUBE_TOKEN,
-          id: video.videoId,
-          part: "statistics, contentDetails",
-        })
-        .then((response) => {
-          const { data } = response;
-          data.items.forEach((item) => {
-            const { viewCount, likeCount, dislikeCount } = item.statistics;
-            const { duration } = item.contentDetails;
-            let durationInSeconds = moment
-              .duration(duration, moment.ISO_8601)
-              .asSeconds();
-            Object.assign(video, {
-              viewCount,
-              likeCount,
-              dislikeCount,
-              durationInSeconds,
-            });
-            videos.set(video.videoId, video);
-          });
-        })
+      google.youtube("v3").videos.list({
+        key: process.env.YOUTUBE_TOKEN,
+        id: video.videoId,
+        part: "statistics, contentDetails",
+      })
+      // .then((response) => {
+      //   const { data } = response;
+      //   data.items.forEach((item) => {
+      //     const { viewCount, likeCount, dislikeCount } = item.statistics;
+      //     const { duration } = item.contentDetails;
+      //     let durationInSeconds = moment
+      //       .duration(duration, moment.ISO_8601)
+      //       .asSeconds();
+      //     Object.assign(video, {
+      //       viewCount,
+      //       likeCount,
+      //       dislikeCount,
+      //       durationInSeconds,
+      //     });
+      //     vids.set(video.videoId, video);
+      //   });
+      // });
+      // );
     );
   });
-  return Promise.all(promises);
+  // );
+
+  Promise.all(promises).then((response) => {
+    console.log("==========");
+    console.log(response.data);
+    const { data } = response;
+    data.items.forEach((item) => {
+      const { viewCount, likeCount, dislikeCount } = item.statistics;
+      const { duration } = item.contentDetails;
+      let durationInSeconds = moment
+        .duration(duration, moment.ISO_8601)
+        .asSeconds();
+      Object.assign(video, {
+        viewCount,
+        likeCount,
+        dislikeCount,
+        durationInSeconds,
+      });
+      vids.set(video.videoId, video);
+    });
+  });
+  // return vids;
 }
 
 function calculatePublishAfterDate() {
@@ -121,3 +145,5 @@ function getCurrentDayOfWeek() {
   let currentDayOfWeek = new Date().getDate();
   return currentDayOfWeek;
 }
+
+module.exports = { getVideos, getVideoStatistics };
