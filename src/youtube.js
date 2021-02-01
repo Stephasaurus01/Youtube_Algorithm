@@ -78,56 +78,40 @@ function getVideoStatistics(vids) {
   console.log("=====================");
   console.log(vids);
   console.log("=====================");
-  // return Promise.all(
-  vids.forEach((video) => {
-    promises.push(
-      google.youtube("v3").videos.list({
-        key: process.env.YOUTUBE_TOKEN,
-        id: video.videoId,
-        part: "statistics, contentDetails",
-      })
-      // .then((response) => {
-      //   const { data } = response;
-      //   data.items.forEach((item) => {
-      //     const { viewCount, likeCount, dislikeCount } = item.statistics;
-      //     const { duration } = item.contentDetails;
-      //     let durationInSeconds = moment
-      //       .duration(duration, moment.ISO_8601)
-      //       .asSeconds();
-      //     Object.assign(video, {
-      //       viewCount,
-      //       likeCount,
-      //       dislikeCount,
-      //       durationInSeconds,
-      //     });
-      //     vids.set(video.videoId, video);
-      //   });
-      // });
-      // );
-    );
-  });
-  // );
+  return Promise.all(
+    vids.forEach(function (video) {
+      // vids.forEach((video) => {
+      // promises.push(
+      google
+        .youtube("v3")
+        .videos.list({
+          key: process.env.YOUTUBE_TOKEN,
+          id: video.videoId,
+          part: "statistics, contentDetails",
+        })
+        .then((response) => {
+          const { data } = response;
+          data.items.forEach((item) => {
+            const { viewCount, likeCount, dislikeCount } = item.statistics;
+            const { duration } = item.contentDetails;
+            let durationInSeconds = moment
+              .duration(duration, moment.ISO_8601)
+              .asSeconds();
+            Object.assign(video, {
+              viewCount,
+              likeCount,
+              dislikeCount,
+              durationInSeconds,
+            });
+            // vids.set(video.videoId, video);
+            // https://stackoverflow.com/questions/34813147/promise-all-is-returning-an-array-of-undefined
+            return Promise.resolve(video);
+          });
+        });
+    })
+  );
 
-  Promise.all(promises).then((response) => {
-    console.log("==========");
-    console.log(response.data);
-    const { data } = response;
-    data.items.forEach((item) => {
-      const { viewCount, likeCount, dislikeCount } = item.statistics;
-      const { duration } = item.contentDetails;
-      let durationInSeconds = moment
-        .duration(duration, moment.ISO_8601)
-        .asSeconds();
-      Object.assign(video, {
-        viewCount,
-        likeCount,
-        dislikeCount,
-        durationInSeconds,
-      });
-      vids.set(video.videoId, video);
-    });
-  });
-  // return vids;
+  // );
 }
 
 function calculatePublishAfterDate() {
