@@ -1,0 +1,9 @@
+const WITHIN_DAYS_PUBLISHED = 1;
+const MAX_RESULTS = 2;
+const NO_OF_PAGES = 3;
+
+module.exports = {
+  WITHIN_DAYS_PUBLISHED,
+  MAX_RESULTS,
+  NO_OF_PAGES,
+};
