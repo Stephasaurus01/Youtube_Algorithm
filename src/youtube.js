@@ -14,7 +14,6 @@ async function getVideos() {
   }
   // await getSubscriberCount();
   // await getVideoStatistics();
-  console.log("Here");
   return videos;
 }
 
@@ -73,13 +72,13 @@ function getSubscriberCount() {
   });
 }
 
-function getVideoStatistics(vids) {
+async function getVideoStatistics(vids) {
   let promises = [];
   console.log("=====================");
   console.log(vids);
   console.log("=====================");
   return Promise.all(
-    vids.forEach(function (video) {
+    await vids.forEach(function (video) {
       // vids.forEach((video) => {
       // promises.push(
       google
@@ -91,6 +90,7 @@ function getVideoStatistics(vids) {
         })
         .then((response) => {
           const { data } = response;
+
           data.items.forEach((item) => {
             const { viewCount, likeCount, dislikeCount } = item.statistics;
             const { duration } = item.contentDetails;
@@ -103,6 +103,8 @@ function getVideoStatistics(vids) {
               dislikeCount,
               durationInSeconds,
             });
+            console.log("11111111111");
+            console.log(video);
             // vids.set(video.videoId, video);
             // https://stackoverflow.com/questions/34813147/promise-all-is-returning-an-array-of-undefined
             return Promise.resolve(video);

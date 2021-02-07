@@ -7,10 +7,11 @@ main();
 
 async function main() {
   let emailText = "";
-  console.log("HERE");
   let videos = await getVideos();
-  console.log(videos);
+  // console.log(videos);
+
   let t = await getVideoStatistics(videos);
+  await t;
   console.log("-----------------");
   console.log(t);
   // videos = calculateMetrics(videos);
