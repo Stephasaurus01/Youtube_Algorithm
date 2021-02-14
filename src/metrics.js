@@ -27,7 +27,7 @@ function hasValidViewCount(viewCount) {
 }
 
 function hasValidSubscriberCount(subscriberCount) {
-  return subscriberCount > 200;
+  return subscriberCount > 100;
 }
 
 function hasValidDuration(duration) {
